@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { EventProvider } from './contexts/EventContext';
 import { NotificationProvider, useNotifications } from './contexts/NotificationContext';
+import { sendEmailToUsers } from './utils/email';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -31,9 +32,11 @@ function EventWrapper() {
   const { addNotification } = useNotifications();
 
   const notifyAllUsers = (message: string, eventId: string) => {
-    const users = JSON.parse(localStorage.getItem('school_events_users') || '[]');
-    users.forEach((user: any) => {
-      if (!user.isAdmin) {
+    const storedUsers = JSON.parse(localStorage.getItem('school_events_users') || '[]');
+    const emails: string[] = [];
+    storedUsers.forEach((user: any) => {
+      if (!user.isAdmin && user.email) {
+        // Send a notification to each non-admin user
         addNotification({
           userId: user.id,
           message,
@@ -41,8 +44,18 @@ function EventWrapper() {
           read: false,
           relatedEventId: eventId,
         });
+        emails.push(user.email);
       }
     });
+
+    // Send an email to all collected email addresses
+    sendEmailToUsers(emails, message, eventId)
+      .then(() => {
+        console.log('Emails sent successfully');
+      })
+      .catch((error) => {
+        console.error('Error sending emails:', error);
+      });
   };
 
   return (
