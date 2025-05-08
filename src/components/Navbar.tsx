@@ -24,7 +24,7 @@ const Navbar = ({ toggleSidebar }: NavbarProps) => {
             </button>
             
             <Link to="/" className="flex items-center ml-2 md:ml-0">
-              <span className="text-xl font-bold">School Events</span>
+              <span className="text-xl font-bold">Campus Connect</span>
             </Link>
           </div>
           
